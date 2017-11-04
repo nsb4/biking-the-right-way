@@ -38,14 +38,23 @@ void setup() {
 
 int x = matrix.width();
 int pass = 0;
+int c;
 bool oldButton = LOW;
 int button;
 
 void loop() {
 // Check if the state of the button has been changed (has it changed from LOW to HIGH?)
+Serial.println("Start over");
+
+c = matrix.Color(0, 0, 0);
+for (int i = 0; i<256; i++) { 
+  matrix.setPixelColor(i,c);
+  }
+matrix.show();
+
 Serial.print(digitalRead(BUTTON_PIN));
 if (digitalRead(BUTTON_PIN) == HIGH && oldButton == LOW) { // If button is now "HIGH"
-  delay(50); // Give the user a second to hold on/let go
+  delay(100); // Give the user a second to hold on/let go
   button = digitalRead(BUTTON_PIN); // Check the button now. 
     if (button = LOW); // Button = LOW. This means you let go of the button, so the button has been pressed
     Serial.print("Button press");
@@ -54,17 +63,16 @@ if (digitalRead(BUTTON_PIN) == HIGH && oldButton == LOW) { // If button is now "
       startSignal(button); // Start the turn signal
       
         if (digitalRead(BUTTON_PIN) == HIGH) { // If you press the botton a second time, WHILE the turn signal is on, turn it off
-             matrix.fillScreen(0); // SMH NONE OF THESE WORK
-             matrix.setBrightness(0); // ME REALLY TRYING TO TURN OFF PIXELS AND FAILING WTF
-             matrix.clear(); // NOT EVEN THIS ONE WORKS
+             //matrix.fillScreen(0); // SMH NONE OF THESE WORK
+            // matrix.setBrightness(0); // ME REALLY TRYING TO TURN OFF PIXELS AND FAILING WTF
+             //matrix.clear(); // NOT EVEN THIS ONE WORKS
              Serial.print("holding"); 
              delay(2000); 
-            // button = 0;
-            // startSignal(button); // <-- I considered calling a different function but then I wasn't sure how you'd be able to exit it?!?!
+             break;
     }
     }
   }
-  
+
 }
 
 
