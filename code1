@@ -1,5 +1,8 @@
-// Adafruit_NeoMatrix example for single NeoPixel Shield.
-// Scrolls 'Howdy' across the matrix in a portrait (vertical) orientation.
+// Bike Turn Signals!
+// Scrolls turn signal arrows, ">" or "<" across the matrix in a portrait (vertical) orientation.
+// Signals can only be turned off by their corresponding button. For example, if you press the blue button to turn on the right turn signal, 
+// pressing the yellow button won't do anything. You can only turn it off using the blue button, and would only THEN be able to turn on the 
+// left turn signal by pressing the yellow button. 
 
 #include <Adafruit_GFX.h>
 #include <Adafruit_NeoMatrix.h>
@@ -9,9 +12,9 @@
 #define PSTR // Make Arduino Due happy
 #endif
 
-#define BUTTON_PIN_1   2 
-#define BUTTON_PIN_2   5
-#define PIN    6 
+#define BUTTON_PIN_1  2 
+#define BUTTON_PIN_2  5
+#define PIN  6 
 
 // MATRIX DECLARATION:
 // Parameter 1 = width of NeoPixel matrix
@@ -20,13 +23,18 @@
 // Parameter 4 = matrix layout flags, add together as needed:
 
 Adafruit_NeoMatrix matrix = Adafruit_NeoMatrix(32, 8, PIN,  
-  NEO_MATRIX_BOTTOM + NEO_MATRIX_LEFT 
-  + NEO_MATRIX_COLUMNS + NEO_MATRIX_ZIGZAG, 
+ NEO_MATRIX_BOTTOM + NEO_MATRIX_LEFT 
+ + NEO_MATRIX_COLUMNS + NEO_MATRIX_ZIGZAG, 
   NEO_GRB + NEO_KHZ800);
 
-int j;
-const uint16_t colors[] = {
-  matrix.Color(255, 0, 0), matrix.Color(0, 255, 0), matrix.Color(0, 0, 255) };
+int j, y;
+int x = matrix.width();
+int pass = 0;
+int c;
+int button_1;
+int button_2;
+bool oldButton = LOW;
+const uint16_t colors[] = { matrix.Color(255, 0, 0), matrix.Color(0, 255, 0), matrix.Color(0, 0, 255) };
 
 void setup() {
   Serial.begin(9600);
@@ -39,15 +47,13 @@ void setup() {
   matrix.show(); // Initialize all pixels to 'off'
 }
 
-int x = matrix.width();
-int pass = 0;
-int c;
-int button_1;
-int button_2;
-bool oldButton = LOW;
 
 void loop() {
-
+ //Adafruit_NeoMatrix matrix = Adafruit_NeoMatrix(8, 8, PIN,  
+ //NEO_MATRIX_BOTTOM + NEO_MATRIX_LEFT 
+ // + NEO_MATRIX_COLUMNS + NEO_MATRIX_ZIGZAG, 
+ //NEO_GRB + NEO_KHZ800);
+ 
 Serial.println("Start over");
 
 // Clear the matrix! All pixels off!
@@ -73,9 +79,10 @@ if (digitalRead(BUTTON_PIN_1) == HIGH && oldButton == LOW) { // If button is now
              Serial.print("holding1"); 
              delay(1000); // Slightly inconvenient but a VERY IMPORTANT DELAY FOR THE WELLNESS OF THE CODE
              break; // This will take us back up to the top of the loop and clear the pixels
-        }
+        }   
     }
 }
+
 
 // Left Turn Signal (Button Pin 2)
 if (digitalRead(BUTTON_PIN_2) == HIGH && oldButton == LOW) { 
@@ -99,39 +106,101 @@ if (digitalRead(BUTTON_PIN_2) == HIGH && oldButton == LOW) {
 
 void rightSignal(int button_1) {
   for(j=0; j<10; j++) { // This j is a counter. Not sure how necessary it is but I don't want to mess with it.
-      Serial.println("Looping Right");
+      Serial.println("Looping right, Blue");
+
+      matrix.fillScreen(0); 
+      matrix.setCursor(x-16,0);
+      matrix.print(F(">>>>>>"));
+       if(++x < -34) {
+        // ++ x< 34 MESSES IT UP (with setCursor at x-16)
+       x = matrix.width();
+       matrix.fillScreen(0);
+        delay(10);
+       if(++pass >= 3) 
+          pass = 0;
+         matrix.setTextColor(colors[pass]); 
+         Serial.println("New color!");
+        }
+      delay(100);
+      matrix.show();
+      
+      /* // IT'S REVERSING HOLY SHIT
+      matrix.fillScreen(0); 
+      matrix.setCursor(x-12,0);
+      matrix.print(F(">>>"));
+      
+       if(++x < -2) {
+       x = -16;
+       matrix.fillScreen(0);
+        delay(10);
+       if(++pass >= 3) pass = 0;
+         matrix.setTextColor(colors[pass]); 
+        }
+      delay(500);
+      matrix.show();
+      
+      /*
       matrix.fillScreen(0); // ".fillScreen" can fill the screen with any color. Here, we chose 0, so this clears the matrix.
-      matrix.setCursor(x-32, 0);
+      matrix.setCursor(x,0);
       matrix.print(F(">>>>>>>>"));
       // FIGURE OUT HOW TO REVERSE THE DIRECTION
-        if(--x < -6) {
+        if(--x < -36) {
          x = matrix.width();
         }
       delay(50);
       matrix.show();
+      /*
+       * 
+       */
         if (digitalRead(BUTTON_PIN_1) == HIGH) {
          Serial.print("stop 1");
          break;
         }
-   }
+ }
 }
 
 void leftSignal(int button_2) {
   for(j=0; j<10; j++) { 
-      Serial.println("Looping Left");
+      Serial.println("Looping Left, Yellow");
+
       matrix.fillScreen(0); 
-      matrix.setCursor(x, 0);
-      matrix.print(F("<<<<<<<<"));
-        if(--x < -6) {
-         x = matrix.width();
+      matrix.setCursor(x-32,0);
+      matrix.print(F("<<<"));
+      
+       if(--x < 22) {
+       x = matrix.width();
+       matrix.fillScreen(0);
+        delay(10);
+       if(++pass >= 3) pass = 0;
+         matrix.setTextColor(colors[pass]); 
         }
       delay(50);
       matrix.show();
+
+      /*
+      matrix.fillScreen(0); 
+      matrix.setCursor(x,0);
+      matrix.print(F("<<<"));
+      
+       if(--x < -16) {
+       x = matrix.width()-30;
+       matrix.fillScreen(0);
+        delay(10);
+       if(++pass >= 3) pass = 0;
+    matrix.setTextColor(colors[pass]); 
+        }
+      delay(50);
+      matrix.show();
+      /*
+       * 
+       */
+
+
         if (digitalRead(BUTTON_PIN_2) == HIGH) {
          Serial.print("stop 2");
+         delay(50);
          break;
         }
-   }
-
+ }
 }
 
