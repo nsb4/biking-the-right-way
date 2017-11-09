@@ -109,11 +109,15 @@ void rightSignal(int button_1) {
       Serial.println("Looping right, Blue");
 
       matrix.fillScreen(0); 
-      matrix.setCursor(x-16,0);
-      matrix.print(F(">>>>>>"));
-       if(++x < -34) {
+      matrix.setCursor(x-16,0); // Has the text start in the middle
+      
+      matrix.print(F(">>>"));
+       if (++x > 44) {
+        Serial.print("x=");
+        Serial.println(x);
         // ++ x< 34 MESSES IT UP (with setCursor at x-16)
-       x = matrix.width();
+       x = matrix.width(); // DON'T MESS WE NEED THIS
+       Serial.println(matrix.width());
        matrix.fillScreen(0);
         delay(10);
        if(++pass >= 3) 
@@ -121,7 +125,7 @@ void rightSignal(int button_1) {
          matrix.setTextColor(colors[pass]); 
          Serial.println("New color!");
         }
-      delay(100);
+      delay(50);
       matrix.show();
       
       /* // IT'S REVERSING HOLY SHIT
@@ -167,8 +171,9 @@ void leftSignal(int button_2) {
       matrix.setCursor(x-32,0);
       matrix.print(F("<<<"));
       
-       if(--x < 22) {
+       if(--x < 20) { // (x < A), 32-A is how many spaces the LEDs will move (????)
        x = matrix.width();
+       Serial.println(matrix.width());
        matrix.fillScreen(0);
         delay(10);
        if(++pass >= 3) pass = 0;
@@ -177,23 +182,7 @@ void leftSignal(int button_2) {
       delay(50);
       matrix.show();
 
-      /*
-      matrix.fillScreen(0); 
-      matrix.setCursor(x,0);
-      matrix.print(F("<<<"));
-      
-       if(--x < -16) {
-       x = matrix.width()-30;
-       matrix.fillScreen(0);
-        delay(10);
-       if(++pass >= 3) pass = 0;
-    matrix.setTextColor(colors[pass]); 
-        }
-      delay(50);
-      matrix.show();
-      /*
-       * 
-       */
+
 
 
         if (digitalRead(BUTTON_PIN_2) == HIGH) {
