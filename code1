@@ -3,6 +3,7 @@
 // Signals can only be turned off by their corresponding button. For example, if you press the blue button to turn on the right turn signal, 
 // pressing the yellow button won't do anything. You can only turn it off using the blue button, and would only THEN be able to turn on the 
 // left turn signal by pressing the yellow button. 
+// Also, there's a little calming beep when the signals are turned on!
 
 #include <Adafruit_GFX.h>
 #include <Adafruit_NeoMatrix.h>
@@ -27,7 +28,7 @@ Adafruit_NeoMatrix matrix = Adafruit_NeoMatrix(32, 8, PIN,
  + NEO_MATRIX_COLUMNS + NEO_MATRIX_ZIGZAG, 
   NEO_GRB + NEO_KHZ800);
 
-int j, y;
+int j;
 int x = matrix.width();
 int pass = 0;
 int c;
@@ -49,11 +50,7 @@ void setup() {
 
 
 void loop() {
- //Adafruit_NeoMatrix matrix = Adafruit_NeoMatrix(8, 8, PIN,  
- //NEO_MATRIX_BOTTOM + NEO_MATRIX_LEFT 
- // + NEO_MATRIX_COLUMNS + NEO_MATRIX_ZIGZAG, 
- //NEO_GRB + NEO_KHZ800);
- 
+  
 Serial.println("Start over");
 
 // Clear the matrix! All pixels off!
@@ -74,7 +71,7 @@ if (digitalRead(BUTTON_PIN_1) == HIGH && oldButton == LOW) { // If button is now
     button_1 = 1;
     while (button_1 = 1) {
      rightSignal(button_1); // Start the turn signal
-      
+    // signalSound(button_1);
         if (digitalRead(BUTTON_PIN_1) == HIGH) { // If you press the button WHILE the turn signal is on, break the while loop
              Serial.print("holding1"); 
              delay(1000); // Slightly inconvenient but a VERY IMPORTANT DELAY FOR THE WELLNESS OF THE CODE
@@ -104,58 +101,30 @@ if (digitalRead(BUTTON_PIN_2) == HIGH && oldButton == LOW) {
 }
 }
 
+// Right Turn Signal: The LEDs
 void rightSignal(int button_1) {
   for(j=0; j<10; j++) { // This j is a counter. Not sure how necessary it is but I don't want to mess with it.
       Serial.println("Looping right, Blue");
-
+     
       matrix.fillScreen(0); 
       matrix.setCursor(x-16,0); // Has the text start in the middle
-      
       matrix.print(F(">>>"));
-       if (++x > 44) {
-        Serial.print("x=");
-        Serial.println(x);
-        // ++ x< 34 MESSES IT UP (with setCursor at x-16)
-       x = matrix.width(); // DON'T MESS WE NEED THIS
-       Serial.println(matrix.width());
+      
+       if (++x > 44) { // Have the text (">>>") move 44-32 = 12 points from left to right
+       x = matrix.width();
        matrix.fillScreen(0);
         delay(10);
        if(++pass >= 3) 
           pass = 0;
          matrix.setTextColor(colors[pass]); 
          Serial.println("New color!");
+         tone(13,300,20);    
         }
+        
       delay(50);
+       
       matrix.show();
       
-      /* // IT'S REVERSING HOLY SHIT
-      matrix.fillScreen(0); 
-      matrix.setCursor(x-12,0);
-      matrix.print(F(">>>"));
-      
-       if(++x < -2) {
-       x = -16;
-       matrix.fillScreen(0);
-        delay(10);
-       if(++pass >= 3) pass = 0;
-         matrix.setTextColor(colors[pass]); 
-        }
-      delay(500);
-      matrix.show();
-      
-      /*
-      matrix.fillScreen(0); // ".fillScreen" can fill the screen with any color. Here, we chose 0, so this clears the matrix.
-      matrix.setCursor(x,0);
-      matrix.print(F(">>>>>>>>"));
-      // FIGURE OUT HOW TO REVERSE THE DIRECTION
-        if(--x < -36) {
-         x = matrix.width();
-        }
-      delay(50);
-      matrix.show();
-      /*
-       * 
-       */
         if (digitalRead(BUTTON_PIN_1) == HIGH) {
          Serial.print("stop 1");
          break;
@@ -163,6 +132,7 @@ void rightSignal(int button_1) {
  }
 }
 
+// Left Turn Signal: The LEDs
 void leftSignal(int button_2) {
   for(j=0; j<10; j++) { 
       Serial.println("Looping Left, Yellow");
@@ -171,19 +141,16 @@ void leftSignal(int button_2) {
       matrix.setCursor(x-32,0);
       matrix.print(F("<<<"));
       
-       if(--x < 20) { // (x < A), 32-A is how many spaces the LEDs will move (????)
+       if(--x < 20) { // Have the text ("<<<") move 32-20 = 12 points from right to left
        x = matrix.width();
-       Serial.println(matrix.width());
        matrix.fillScreen(0);
-        delay(10);
+       delay(10);
        if(++pass >= 3) pass = 0;
          matrix.setTextColor(colors[pass]); 
+         tone(13,300,20); 
         }
       delay(50);
       matrix.show();
-
-
-
 
         if (digitalRead(BUTTON_PIN_2) == HIGH) {
          Serial.print("stop 2");
@@ -192,4 +159,3 @@ void leftSignal(int button_2) {
         }
  }
 }
-
