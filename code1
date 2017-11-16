@@ -5,6 +5,7 @@
 // pressing the yellow button won't do anything. You can only turn it off using the blue button, and would only THEN be able to turn on the 
 // left turn signal by pressing the yellow button. 
 
+#include <Adafruit_GFX.h>
 #include <Adafruit_NeoMatrix.h>
 #include <Adafruit_NeoPixel.h>
 #include <Adafruit_CircuitPlayground.h>
@@ -12,11 +13,12 @@
 #include <SPI.h>
 
 
+
 #ifndef PSTR
 #define PSTR // Make Arduino Due happy
 #endif
 
-#define PIN  10 
+#define PIN  10
 
 // Declare Our Matrix:
 // Parameter 1 = width of NeoPixel matrix
@@ -36,10 +38,6 @@ int button_1;
 int button_2;
 const uint16_t colors[] = { matrix.Color(255, 0, 0), matrix.Color(255, 153, 255), matrix.Color(204, 204, 0), 
 matrix.Color(0, 0, 204), matrix.Color(0, 255, 255), matrix.Color(255, 0, 127), matrix.Color(102, 0, 204) };
-const uint8_t spLEFT[]  PROGMEM ={0xAD,0x0E,0xB0,0x96,0x2B,0x5A,0x8C,0xC2,0x93,0x49,0xAE,0x5C,0x78,0x72,0x1F,
-0x23,0xC5,0xBE,0xF6,0xCD,0x6F,0x71,0xEA,0x58,0xA2,0xC4,0x3A,0xF1,0x6D,0x5B,0xE7,0x63,0x04,0x7B,0x4C,0x8A,0x23,
-0x03,0xA2,0x35,0xD1,0x80,0x02,0x86,0xF7,0x00,0x00,0x70,0x40,0x17,0xE6,0x08,0x60,0x29,0xFD,0x01,0x00,0x00};
-
 
 void setup() {
   Serial.begin(9600);
@@ -48,6 +46,9 @@ void setup() {
   matrix.setTextWrap(false);
   matrix.setBrightness(40);
   matrix.setTextColor(colors[0]);
+  pinMode(19, INPUT_PULLUP);
+  pinMode(4, INPUT_PULLUP);
+  pinMode(10, OUTPUT);
   matrix.show(); // Initialize all pixels to 'off'   
 }
 
@@ -63,6 +64,7 @@ Serial.println("Start over");
   matrix.show();
 
 // Here's a message in the meantime!
+  digitalWrite(10,HIGH);
   matrix.fillScreen(0);
   matrix.setCursor(x, 0);
   matrix.print(F("Howdy y'all! Don't mess with Texas, don't mess with me!"));
@@ -89,7 +91,7 @@ if (CircuitPlayground.rightButton() == HIGH) { // If button is now "HIGH" (that 
      CircuitPlayground.playTone(300, 50);
      CircuitPlayground.playTone(0, 900);
      CircuitPlayground.playTone(200, 50);
-      CircuitPlayground.playTone(0, 400);
+     CircuitPlayground.playTone(0, 400);
         if (CircuitPlayground.rightButton() == HIGH) { // If you press the button WHILE the turn signal is on, break the while loop
              Serial.print("Holding, 1"); 
              delay(1000); // Slightly inconvenient but a VERY IMPORTANT DELAY FOR THE WELLNESS OF THE CODE
@@ -125,8 +127,8 @@ if (CircuitPlayground.leftButton() == HIGH) {
 // Right Turn Signal: The LEDs
 void rightSignal(int button_1) {
   for(j=0; j<10; j++) { // This j is a counter. Not sure how necessary it is but I don't want to mess with it.
+      digitalWrite(10,HIGH);
       Serial.println("Looping right, Blue");
-     
       matrix.fillScreen(0); 
       matrix.setCursor(x-16,0); // Has the text start in the middle
       matrix.print(F(">>>"));
@@ -139,7 +141,7 @@ void rightSignal(int button_1) {
           pass = 0;
          matrix.setTextColor(colors[pass]); 
          Serial.println("New color!");
-         tone(13,300,20);    
+         //tone(13,300,20);    
         }
         
       delay(50);
@@ -156,6 +158,7 @@ void rightSignal(int button_1) {
 // Left Turn Signal: The LEDs
 void leftSignal(int button_2) {
   for(j=0; j<10; j++) { 
+      digitalWrite(10,HIGH);
       Serial.println("Looping Left, Yellow");
 
       matrix.fillScreen(0); 
@@ -181,4 +184,5 @@ void leftSignal(int button_2) {
         }
  }
 }
+
 
