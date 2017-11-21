@@ -12,13 +12,11 @@
 #include <Wire.h>
 #include <SPI.h>
 
-
+#define PIN  10
 
 #ifndef PSTR
 #define PSTR // Make Arduino Due happy
 #endif
-
-#define PIN  10
 
 // Declare Our Matrix:
 // Parameter 1 = width of NeoPixel matrix
@@ -36,8 +34,8 @@ int x = matrix.width();
 int pass = 0;
 int button_1;
 int button_2;
-const uint16_t colors[] = { matrix.Color(255, 0, 0), matrix.Color(255, 153, 255), matrix.Color(204, 204, 0), 
-matrix.Color(0, 0, 204), matrix.Color(0, 255, 255), matrix.Color(255, 0, 127), matrix.Color(102, 0, 204) };
+const uint16_t colors[] = { matrix.Color(230, 0, 0), matrix.Color(230, 153, 230), matrix.Color(204, 204, 0), 
+matrix.Color(0, 0, 204), matrix.Color(0, 230, 230), matrix.Color(230, 0, 127), matrix.Color(102, 0, 204), matrix.Color(120, 140, 200) };
 
 void setup() {
   Serial.begin(9600);
@@ -70,7 +68,7 @@ Serial.println("Start over");
   matrix.print(F("Howdy y'all! Don't mess with Texas, don't mess with me!"));
   if(--x < -310) {
     x = matrix.width();
-    if(++pass >= 7) pass = 0;
+    if(++pass >= 8) pass = 0;
     matrix.setTextColor(colors[pass]);
   }
   matrix.show();
@@ -87,14 +85,9 @@ if (CircuitPlayground.rightButton() == HIGH) { // If button is now "HIGH" (that 
     while (button_1 = 1) {
       // Start the turn signal
      rightSignal(button_1); 
-     // Start turn signal sounds
-     CircuitPlayground.playTone(300, 50);
-     CircuitPlayground.playTone(0, 900);
-     CircuitPlayground.playTone(200, 50);
-     CircuitPlayground.playTone(0, 400);
         if (CircuitPlayground.rightButton() == HIGH) { // If you press the button WHILE the turn signal is on, break the while loop
              Serial.print("Holding, 1"); 
-             delay(1000); // Slightly inconvenient but a VERY IMPORTANT DELAY FOR THE WELLNESS OF THE CODE
+             delay(700); // Slightly inconvenient but a VERY IMPORTANT DELAY FOR THE WELLNESS OF THE CODE
              break; // This will take us back up to the top of the loop and clear the pixels
         }   
     }
@@ -111,13 +104,9 @@ if (CircuitPlayground.leftButton() == HIGH) {
     button_2 = 2;
     while (button_2 = 2) {
       leftSignal(button_2);
-     CircuitPlayground.playTone(300, 50);
-     CircuitPlayground.playTone(0, 900);
-     CircuitPlayground.playTone(200, 50);
-      CircuitPlayground.playTone(0, 400);
         if (CircuitPlayground.leftButton() == HIGH) { 
              Serial.print("Holding, 2"); 
-             delay(1000);
+             delay(700);
              break;
         }
     }
@@ -130,59 +119,59 @@ void rightSignal(int button_1) {
       digitalWrite(10,HIGH);
       Serial.println("Looping right, Blue");
       matrix.fillScreen(0); 
-      matrix.setCursor(x-16,0); // Has the text start in the middle
-      matrix.print(F(">>>"));
-      
+      matrix.setCursor(x-30,0); // Has the text start in the middle
+      matrix.print(F(">>>>>"));
+ 
        if (++x > 44) { // Have the text (">>>") move 44-32 = 12 points from left to right
        x = matrix.width();
        matrix.fillScreen(0);
         delay(10);
-       if(++pass >= 7) 
+       if(++pass >= 8) 
           pass = 0;
-         matrix.setTextColor(colors[pass]); 
-         Serial.println("New color!");
-         //tone(13,300,20);    
+          matrix.setTextColor(colors[pass]);
+          if ((pass % 2) == 0) {
+            CircuitPlayground.playTone(300, 50);
+            Serial.println("Even!");
+          }
+          else {
+            CircuitPlayground.playTone(200, 50);
+            Serial.println("Odd!");
+          }
+         Serial.println("New color!");    
         }
-        
       delay(50);
       matrix.show();
-      
-        if (CircuitPlayground.rightButton() == HIGH) {
-         Serial.print("Stop, 1");
-         delay(50);
-         break;
-        }
  }
 }
+
 
 // Left Turn Signal: The LEDs
 void leftSignal(int button_2) {
   for(j=0; j<10; j++) { 
       digitalWrite(10,HIGH);
       Serial.println("Looping Left, Yellow");
-
       matrix.fillScreen(0); 
       matrix.setCursor(x-32,0);
-      matrix.print(F("<<<"));
+      matrix.print(F("<<<<<"));
       
        if(--x < 20) { // Have the text ("<<<") move 32-20 = 12 points from right to left
        x = matrix.width();
        matrix.fillScreen(0);
        delay(10);
-       if(++pass >= 7) pass = 0;
+       if (++pass >= 8)
+         pass = 0;
          matrix.setTextColor(colors[pass]); 
-         tone(13,300,20); 
-        }
-        
+         if ((pass % 2) == 0) {
+            CircuitPlayground.playTone(300, 50);
+            Serial.println("Even!");
+         }
+         else {
+            CircuitPlayground.playTone(200, 50);
+            Serial.println("Odd!");
+         }
+       }  
       delay(50);
       matrix.show();
-
-        if (CircuitPlayground.leftButton() == HIGH) {
-         Serial.print("Stop, 2");
-         delay(50);
-         break;
-        }
  }
 }
-
 
