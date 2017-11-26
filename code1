@@ -61,7 +61,10 @@ Serial.println("Start over");
   }
   matrix.show();
 
-// Here's a message in the meantime!
+// Turn off the message if the Slide Switch is off (to the right, that is)
+if (CircuitPlayground.slideSwitch()) {
+  // Here's a message!
+  Serial.println("Screening TX");
   digitalWrite(10,HIGH);
   matrix.fillScreen(0);
   matrix.setCursor(x, 0);
@@ -73,6 +76,13 @@ Serial.println("Start over");
   }
   matrix.show();
   delay(50);
+}
+else {
+  Serial.println("No message");
+  matrix.fillScreen(0);
+  matrix.show();
+}
+
 
 // Right Turn Signal (Button Pin 1)
 // Check if the state of the button has been changed (has it changed from LOW to HIGH?)
