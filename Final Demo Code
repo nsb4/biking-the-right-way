@@ -58,29 +58,30 @@ void setup() {
 void loop() { 
 // Clear the matrix and Circuit Playground! All pixels off!
   Serial.println("Start over");
-  c = matrix.Color(0, 0, 0);
-  for (int i = 0; i<256; i++) { 
-  matrix.setPixelColor(i,c);
+  c = matrix.Color(0, 0, 0); // Set variable "c" at which all pixels = 0, there is no light!
+  for (int i = 0; i<256; i++) { // For all 256 LEDs in the NeoMatrix..
+  matrix.setPixelColor(i,c); // Set Pixel color = c, aka display NO LIGHT
   }
-  matrix.show();
-  CircuitPlayground.clearPixels();
+  matrix.show(); // matrix.show() is ESSENTIAL for making things happen. If we didn't include a matrix.show(), none of the above commands would apply.
+  CircuitPlayground.clearPixels(); // Clear NeoPixels on the Circuit Playground as well!
 
 
 // Display message on NeoMatrix IF the Slide Switch is on (to the left)
 if (CircuitPlayground.slideSwitch()) {
   Serial.println("Screening TX");
   digitalWrite(10,HIGH); // Passes data through digital pin 10 on Circuit Playground to DIN port of matrix
-  matrix.fillScreen(0);
-  matrix.setCursor(x, 0); //start at beginning of matrix
+  matrix.fillScreen(0); // Clear the screen before the text prints. 
+  matrix.setCursor(x, 0); // Set where the text will start scrolling from (remember, x = matrix.width(), which = 32. So, the text will begin scrolling from
+                          // the right-most column of the matrix. (And move from right --> left)
   
   // START:
   // CUSTOMIZE TEXT
      matrix.print(F("GO ASTROS!")); // Print whatever message you'd like to on the NeoMatrix
   // END
   
-  if(--x < -70) {
-    x = matrix.width(); // Rotate between colors (specified above) as message keeps cycling across NeoMatrix
-    if(++pass >= 8) pass = 0;
+  if(--x < -70) { // Print this text from x = 32 to x = -70 
+    x = matrix.width(); 
+    if(++pass >= 8) pass = 0; // Rotate between colors (specified above) as message keeps cycling across NeoMatrix
     matrix.setTextColor(colors[pass]);
   }
   matrix.show();
@@ -104,9 +105,9 @@ if (CircuitPlayground.rightButton() == HIGH) { // If button is now "HIGH" (that 
   delay(500); // Give the user a second to hold on/let go
     if (CircuitPlayground.rightButton() == LOW) { // Button = LOW. This means you let go of the button, so the button has officially been pressed!
     Serial.println("Right button press");
-    button_1 = 1;
+    button_1 = 1; // Set variable
     while (button_1 = 1) {
-      // Start the right turn signal
+      // Start the right turn signal until we redefine button_1 or break the while loop
          rightSignal(button_1); // This is a function further down in our code!
           
         if (CircuitPlayground.rightButton() == HIGH) { // If you press the button WHILE the turn signal is on, break the while loop
@@ -146,15 +147,15 @@ if (CircuitPlayground.leftButton() == HIGH) {
 // This rightSignal function is called upon when the right button is pressed.
 void rightSignal(int button_1) {
   for(j=0; j<10; j++) { 
-      digitalWrite(10,HIGH); // Assign pin 10 as HIGH, so CircuitPlayground now tells the NeoMatrix to display text
+      digitalWrite(10,HIGH); // Assign pin 10 as HIGH, so CircuitPlayground now sends an output to the NeoMatrix
       Serial.println("Looping right, Blue");
       matrix.fillScreen(0); 
-      matrix.setCursor(x-30,0); // Has the text start in the middle
-      matrix.print(F(">>>>>")); //prints right arrows
+      matrix.setCursor(x-30,0); // Redefine the starting point/cursor such that the text starts in the middle
+      matrix.print(F(">>>>>")); // Prints right arrows, scrolls from left --> right (A VERY TRICKY THING to code)
  
-       if (++x > 44) { // Have the text (">>>") move 44-32 = 12 points from left to right. 32 is the x-length of the matrix
+       if (++x > 44) { // Have the text (">>>") move 44-32 = 12 points from left to right. 
        x = matrix.width();
-       matrix.fillScreen(0);
+       matrix.fillScreen(0); // Clear screen between each movement so that there's open space between the ">" arrows
         delay(10);
        if(++pass >= 8) // Rotate back to the first color for arrow text after cycling through all 8 colors
           pass = 0;
@@ -172,7 +173,7 @@ void rightSignal(int button_1) {
             CircuitPlayground.setPixelColor(5,0,200,200);
           }
           else {
-            CircuitPlayground.playTone(200, 50); // If the pass is "even" (has scrolled by 2,4,6, or 8 times), then play this tone.
+            CircuitPlayground.playTone(200, 50); // If the pass is "odd" (has scrolled by 1,3,5, or 7 times), then play this tone.
             Serial.println("Odd!");
             CircuitPlayground.clearPixels(); // Turn off all NeoPixels on CircuitPlayground
           }
