@@ -11,13 +11,12 @@
 #include <Adafruit_CircuitPlayground.h>
 #include <Wire.h>
 #include <SPI.h>
-
+#define ROTATION_RATE   1000
 #define PIN  10
-
 #ifndef PSTR
 #define PSTR // Make Arduino Due happy
 #endif
-
+      
 // Declare Our Matrix:
 // Parameter 1 = width of NeoPixel matrix
 // Parameter 2 = height of matrix
@@ -42,17 +41,19 @@ void setup() {
   matrix.begin();
   CircuitPlayground.begin();
   matrix.setTextWrap(false);
-  matrix.setBrightness(40);
+  matrix.setBrightness(40); //initialize brightness
   matrix.setTextColor(colors[0]);
   pinMode(19, INPUT_PULLUP);
   pinMode(4, INPUT_PULLUP);
   pinMode(10, OUTPUT);
-  matrix.show(); // Initialize all pixels to 'off'   
+  matrix.show(); // Initialize all pixels to 'off'
+    
 }
 
 
 void loop() { 
 Serial.println("Start over");
+
 
 // Clear the matrix! All pixels off!
   c = matrix.Color(0, 0, 0);
@@ -60,6 +61,9 @@ Serial.println("Start over");
   matrix.setPixelColor(i,c);
   }
   matrix.show();
+  CircuitPlayground.clearPixels();
+
+
 
 // Turn off the message if the Slide Switch is off (to the right, that is)
 if (CircuitPlayground.slideSwitch()) {
@@ -83,7 +87,6 @@ else {
   matrix.show();
 }
 
-
 // Right Turn Signal (Button Pin 1)
 // Check if the state of the button has been changed (has it changed from LOW to HIGH?)
 if (CircuitPlayground.rightButton() == HIGH) { // If button is now "HIGH" (that means you initially pressed the button down)
@@ -94,10 +97,11 @@ if (CircuitPlayground.rightButton() == HIGH) { // If button is now "HIGH" (that 
     button_1 = 1;
     while (button_1 = 1) {
       // Start the turn signal
+
      rightSignal(button_1); 
         if (CircuitPlayground.rightButton() == HIGH) { // If you press the button WHILE the turn signal is on, break the while loop
              Serial.print("Holding, 1"); 
-             delay(700); // Slightly inconvenient but a VERY IMPORTANT DELAY FOR THE WELLNESS OF THE CODE
+             delay(1000); // Slightly inconvenient but a VERY IMPORTANT DELAY FOR THE WELLNESS OF THE CODE
              break; // This will take us back up to the top of the loop and clear the pixels
         }   
     }
@@ -116,7 +120,7 @@ if (CircuitPlayground.leftButton() == HIGH) {
       leftSignal(button_2);
         if (CircuitPlayground.leftButton() == HIGH) { 
              Serial.print("Holding, 2"); 
-             delay(700);
+             delay(1000);
              break;
         }
     }
@@ -142,10 +146,16 @@ void rightSignal(int button_1) {
           if ((pass % 2) == 0) {
             CircuitPlayground.playTone(300, 50);
             Serial.println("Even!");
+      CircuitPlayground.setPixelColor(9,200,0,0);
+      CircuitPlayground.setPixelColor(8,0,200,0);
+      CircuitPlayground.setPixelColor(7,250,100,250);
+      CircuitPlayground.setPixelColor(6,200,200,0);
+      CircuitPlayground.setPixelColor(5,0,200,200);
           }
           else {
             CircuitPlayground.playTone(200, 50);
             Serial.println("Odd!");
+            CircuitPlayground.clearPixels();
           }
          Serial.println("New color!");    
         }
@@ -173,15 +183,22 @@ void leftSignal(int button_2) {
          matrix.setTextColor(colors[pass]); 
          if ((pass % 2) == 0) {
             CircuitPlayground.playTone(300, 50);
+      CircuitPlayground.setPixelColor(0,200,0,0);
+      CircuitPlayground.setPixelColor(1,0,200,0);
+      CircuitPlayground.setPixelColor(2,250,100,250);
+      CircuitPlayground.setPixelColor(3,200,200,0);
+      CircuitPlayground.setPixelColor(4,0,200,200);
             Serial.println("Even!");
          }
          else {
             CircuitPlayground.playTone(200, 50);
             Serial.println("Odd!");
+            CircuitPlayground.clearPixels();
          }
        }  
       delay(50);
       matrix.show();
  }
 }
+
 
