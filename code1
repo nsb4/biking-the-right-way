@@ -1,61 +1,63 @@
 // Bike Turn Signals!
-// Circuit Playground Edition!!
+
 // Scrolls turn signal arrows, ">" or "<" across the matrix in a portrait (vertical) orientation.
 // Signals can only be turned off by their corresponding button. For example, if you press the blue button to turn on the right turn signal, 
 // pressing the yellow button won't do anything. You can only turn it off using the blue button, and would only THEN be able to turn on the 
 // left turn signal by pressing the yellow button. 
+// We also incorporated a fun customizable "Text Scrolling" feature, to add a little spunk to your ride and entertain the drivers behind you.
+// This feature can be turned on/off via the slide switch on the Circuit Playground. 
 
+// Import Necessary Libraries
 #include <Adafruit_GFX.h>
 #include <Adafruit_NeoMatrix.h>
 #include <Adafruit_NeoPixel.h>
 #include <Adafruit_CircuitPlayground.h>
 #include <Wire.h>
 #include <SPI.h>
-#define ROTATION_RATE   1000
+
+// Define Appropriate Things
 #define PIN  10
 #ifndef PSTR
-#define PSTR // Make Arduino Due happy
+#define PSTR 
 #endif
       
 // Declare Our Matrix:
-// Parameter 1 = width of NeoPixel matrix
-// Parameter 2 = height of matrix
-// Parameter 3 = pin number (most are valid)
-// Parameter 4 = matrix layout flags, add together as needed
 Adafruit_NeoMatrix matrix = Adafruit_NeoMatrix(32, 8, PIN,  
  NEO_MATRIX_BOTTOM + NEO_MATRIX_RIGHT 
  + NEO_MATRIX_COLUMNS + NEO_MATRIX_ZIGZAG, 
   NEO_GRB + NEO_KHZ800);
 
-// Our Constants
+// Define Our Constants
 int j,c;
 int x = matrix.width();
 int pass = 0;
 int button_1;
 int button_2;
+
+// Define Vector of Colors (to be displayed on NeoMatrix)
 const uint16_t colors[] = { matrix.Color(230, 0, 0), matrix.Color(230, 153, 230), matrix.Color(204, 204, 0), 
 matrix.Color(0, 0, 204), matrix.Color(0, 230, 230), matrix.Color(230, 0, 127), matrix.Color(102, 0, 204), matrix.Color(120, 140, 200) };
 
 void setup() {
-  Serial.begin(9600);
+  Serial.begin(9600); //Initialize Circuit Playground, NeoMatrix, and Serial Monitor
   matrix.begin();
-  CircuitPlayground.begin();
+  CircuitPlayground.begin(); 
   matrix.setTextWrap(false);
-  matrix.setBrightness(40); //initialize brightness
+  
+  // START:
+  // CUSTOMIZE BRIGHTNESS
+  matrix.setBrightness(40); // Set brightness, try not to blind anybody, but make sure you're seen! 
+  // END
+  
   matrix.setTextColor(colors[0]);
-  pinMode(19, INPUT_PULLUP);
-  pinMode(4, INPUT_PULLUP);
-  pinMode(10, OUTPUT);
-  matrix.show(); // Initialize all pixels to 'off'
-    
+  pinMode(10, OUTPUT); // Set pin 10 on Circuit Playground as output (
+  matrix.show(); // Initialize all pixels to 'off' 
 }
 
 
 void loop() { 
-Serial.println("Start over");
-
-
-// Clear the matrix! All pixels off!
+// Clear the matrix and Circuit Playground! All pixels off!
+  Serial.println("Start over");
   c = matrix.Color(0, 0, 0);
   for (int i = 0; i<256; i++) { 
   matrix.setPixelColor(i,c);
@@ -64,31 +66,39 @@ Serial.println("Start over");
   CircuitPlayground.clearPixels();
 
 
-
-// Turn off the message if the Slide Switch is off (to the right, that is)
+// Display message on NeoMatrix IF the Slide Switch is on (to the left)
 if (CircuitPlayground.slideSwitch()) {
-  // Here's a message!
   Serial.println("Screening TX");
-  digitalWrite(10,HIGH);
+  digitalWrite(10,HIGH); // Passes data through digital pin 10 on Circuit Playground to DIN port of matrix
   matrix.fillScreen(0);
-  matrix.setCursor(x, 0);
-  matrix.print(F("Howdy y'all! Don't mess with Texas, don't mess with me!"));
-  if(--x < -310) {
-    x = matrix.width();
+  matrix.setCursor(x, 0); //start at beginning of matrix
+  
+  // START:
+  // CUSTOMIZE TEXT
+     matrix.print(F("GO ASTROS!")); // Print whatever message you'd like to on the NeoMatrix
+  // END
+  
+  if(--x < -70) {
+    x = matrix.width(); // Rotate between colors (specified above) as message keeps cycling across NeoMatrix
     if(++pass >= 8) pass = 0;
     matrix.setTextColor(colors[pass]);
   }
   matrix.show();
   delay(50);
 }
+
+// Turn off the message on NeoMatrix IF the Slide Switch is off (to the right, that is)
 else {
   Serial.println("No message");
-  matrix.fillScreen(0);
+  matrix.fillScreen(0); // Display nothing if slide switch is to the right
   matrix.show();
 }
 
+
+
 // Right Turn Signal (Button Pin 1)
-// Check if the state of the button has been changed (has it changed from LOW to HIGH?)
+// Check if the state of the button has been changed. The default (unpressed) state of the button is LOW, so
+// we need to check if it has been changed from LOW to HIGH.
 if (CircuitPlayground.rightButton() == HIGH) { // If button is now "HIGH" (that means you initially pressed the button down)
   Serial.println("Blue");
   delay(500); // Give the user a second to hold on/let go
@@ -96,12 +106,12 @@ if (CircuitPlayground.rightButton() == HIGH) { // If button is now "HIGH" (that 
     Serial.println("Right button press");
     button_1 = 1;
     while (button_1 = 1) {
-      // Start the turn signal
-
-     rightSignal(button_1); 
+      // Start the right turn signal
+         rightSignal(button_1); // This is a function further down in our code!
+          
         if (CircuitPlayground.rightButton() == HIGH) { // If you press the button WHILE the turn signal is on, break the while loop
              Serial.print("Holding, 1"); 
-             delay(1000); // Slightly inconvenient but a VERY IMPORTANT DELAY FOR THE WELLNESS OF THE CODE
+             delay(1000); // Slightly inconvenient but a VERY IMPORTANT DELAY FOR THE CODE to work!
              break; // This will take us back up to the top of the loop and clear the pixels
         }   
     }
@@ -109,7 +119,9 @@ if (CircuitPlayground.rightButton() == HIGH) { // If button is now "HIGH" (that 
 }
 
 
+
 // Left Turn Signal (Button Pin 2)
+// Same code as above for the left turn signal
 if (CircuitPlayground.leftButton() == HIGH) { 
   Serial.println("yellow");
   delay(100); 
@@ -127,37 +139,44 @@ if (CircuitPlayground.leftButton() == HIGH) {
 }
 }
 
+
+
+
 // Right Turn Signal: The LEDs
+// This rightSignal function is called upon when the right button is pressed.
 void rightSignal(int button_1) {
-  for(j=0; j<10; j++) { // This j is a counter. Not sure how necessary it is but I don't want to mess with it.
-      digitalWrite(10,HIGH);
+  for(j=0; j<10; j++) { 
+      digitalWrite(10,HIGH); // Assign pin 10 as HIGH, so CircuitPlayground now tells the NeoMatrix to display text
       Serial.println("Looping right, Blue");
       matrix.fillScreen(0); 
       matrix.setCursor(x-30,0); // Has the text start in the middle
-      matrix.print(F(">>>>>"));
+      matrix.print(F(">>>>>")); //prints right arrows
  
-       if (++x > 44) { // Have the text (">>>") move 44-32 = 12 points from left to right
+       if (++x > 44) { // Have the text (">>>") move 44-32 = 12 points from left to right. 32 is the x-length of the matrix
        x = matrix.width();
        matrix.fillScreen(0);
         delay(10);
-       if(++pass >= 8) 
+       if(++pass >= 8) // Rotate back to the first color for arrow text after cycling through all 8 colors
           pass = 0;
           matrix.setTextColor(colors[pass]);
-          if ((pass % 2) == 0) {
+          // This next if statement causes the Circuit Playground emit two tones (which it alternates between), also makes the right half of
+          // the Circuit Playground NeoPixels to blink while the turns signals are on. This allows the user to know whether or not they have successfully
+          // turned on their turn signals.
+          if ((pass % 2) == 0) { // If the pass is "even" (has scrolled by 2,4,6, or 8 times), then play this tone.
             CircuitPlayground.playTone(300, 50);
             Serial.println("Even!");
-      CircuitPlayground.setPixelColor(9,200,0,0);
-      CircuitPlayground.setPixelColor(8,0,200,0);
-      CircuitPlayground.setPixelColor(7,250,100,250);
-      CircuitPlayground.setPixelColor(6,200,200,0);
-      CircuitPlayground.setPixelColor(5,0,200,200);
+            CircuitPlayground.setPixelColor(9,200,0,0); // Light up the right half of the CircuitPlayground
+            CircuitPlayground.setPixelColor(8,0,200,0);
+            CircuitPlayground.setPixelColor(7,250,100,250);
+            CircuitPlayground.setPixelColor(6,200,200,0);
+            CircuitPlayground.setPixelColor(5,0,200,200);
           }
           else {
-            CircuitPlayground.playTone(200, 50);
+            CircuitPlayground.playTone(200, 50); // If the pass is "even" (has scrolled by 2,4,6, or 8 times), then play this tone.
             Serial.println("Odd!");
-            CircuitPlayground.clearPixels();
+            CircuitPlayground.clearPixels(); // Turn off all NeoPixels on CircuitPlayground
           }
-         Serial.println("New color!");    
+          Serial.println("New color!");    
         }
       delay(50);
       matrix.show();
@@ -166,7 +185,8 @@ void rightSignal(int button_1) {
 
 
 // Left Turn Signal: The LEDs
-void leftSignal(int button_2) {
+// Same code as above for left turn signal
+void leftSignal(int button_2) { 
   for(j=0; j<10; j++) { 
       digitalWrite(10,HIGH);
       Serial.println("Looping Left, Yellow");
@@ -183,11 +203,11 @@ void leftSignal(int button_2) {
          matrix.setTextColor(colors[pass]); 
          if ((pass % 2) == 0) {
             CircuitPlayground.playTone(300, 50);
-      CircuitPlayground.setPixelColor(0,200,0,0);
-      CircuitPlayground.setPixelColor(1,0,200,0);
-      CircuitPlayground.setPixelColor(2,250,100,250);
-      CircuitPlayground.setPixelColor(3,200,200,0);
-      CircuitPlayground.setPixelColor(4,0,200,200);
+            CircuitPlayground.setPixelColor(0,200,0,0);
+            CircuitPlayground.setPixelColor(1,0,200,0);
+            CircuitPlayground.setPixelColor(2,250,100,250);
+            CircuitPlayground.setPixelColor(3,200,200,0);
+            CircuitPlayground.setPixelColor(4,0,200,200);
             Serial.println("Even!");
          }
          else {
@@ -200,5 +220,4 @@ void leftSignal(int button_2) {
       matrix.show();
  }
 }
-
 
